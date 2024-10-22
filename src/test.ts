@@ -1,7 +1,5 @@
-const foo = (a: any) => {
-  return a;
-};
+const bar = (a: number): number => {
+  return a
+}
 
-const bar = (a) => {
-  return a;
-};
+console.log(bar(1))
