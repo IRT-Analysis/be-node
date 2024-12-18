@@ -2,7 +2,7 @@
 import cors from 'cors'
 import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
-import irtController from './controllers/irt-controller'
+import { uploadRoutes } from './routes/uploadRoutes'
 
 dotenv.config()
 
@@ -17,7 +17,7 @@ app.use(
   })
 )
 
-app.use('/api/irt', irtController)
+app.use('/api', uploadRoutes)
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server')
