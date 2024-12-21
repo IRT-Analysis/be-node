@@ -2,7 +2,8 @@
 import cors from 'cors'
 import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
-import { uploadRoutes } from './routes/uploadRoutes'
+import { uploadRoutes } from './routes/upload.routes'
+import { analysisRoutes } from './routes/cttAnalysis.routes'
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ app.use(
 )
 
 app.use('/api', uploadRoutes)
+app.use('/api', analysisRoutes)
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server')

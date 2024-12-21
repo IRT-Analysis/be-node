@@ -1,4 +1,4 @@
-import { uploadFile } from '@/controllers/createAnalysis'
+import { uploadFile } from '@/controllers/media.controller'
 import multerMiddleware from '@/middlewares/multerMiddleware'
 import { Router } from 'express'
 

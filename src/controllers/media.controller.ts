@@ -1,7 +1,9 @@
+import FormData from 'form-data'
 import { Request, Response } from 'express'
-import { analyzeFileWithFlask } from '@/services/flaskService'
 
 import dotenv from 'dotenv'
+import axios from 'axios'
+
 dotenv.config()
 
 export const uploadFile = async (req: Request, res: Response): Promise<void> => {
@@ -11,13 +13,20 @@ export const uploadFile = async (req: Request, res: Response): Promise<void> => 
       return
     }
 
-    const result = await analyzeFileWithFlask(
-      req.file.buffer,
-      req.file.mimetype,
-      req.file.originalname,
-      `${process.env.FLASK_API_ENDPOINT}/api/analyze/ctt`
-    )
-    res.status(200).json(result)
+    const formData = new FormData()
+
+    formData.append('file', req.file.buffer as Buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+    })
+
+    const response = await axios.post(`${process.env.FLASK_API_ENDPOINT}/ctt`, formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+    })
+
+    res.status(201).json(response.data)
   } catch (error) {
     console.error('Error uploading file:', error)
     res.status(500).json({
