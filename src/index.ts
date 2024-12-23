@@ -1,13 +1,14 @@
+import { invalidPathHandler } from './middlewares/error.middleware'
 // src/index.ts
 import cors from 'cors'
-import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
-import { uploadRoutes } from './routes/upload.routes'
+import express, { Application, Request, Response } from 'express'
 import { analysisRoutes } from './routes/cttAnalysis.routes'
+import { uploadRoutes } from './routes/upload.routes'
 
 dotenv.config()
 
-const app: Express = express()
+const app: Application = express()
 const port = process.env.PORT || 3000
 
 app.use(
@@ -20,6 +21,7 @@ app.use(
 
 app.use('/api', uploadRoutes)
 app.use('/api', analysisRoutes)
+app.use(invalidPathHandler)
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server')

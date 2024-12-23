@@ -2,8 +2,24 @@ import axios from 'axios'
 import { Request, Response } from 'express'
 
 import dotenv from 'dotenv'
+import { handleError } from '@/middlewares/error.middleware'
 
 dotenv.config()
+
+export class AppError extends Error {
+  public status: number
+  public error?: Record<string, unknown>
+
+  constructor(message: string, status: number, error?: Record<string, unknown>) {
+    super()
+    this.message = message
+    this.status = status
+    if (error) this.error = error
+
+    // Ensure the prototype chain is set correctly
+    Object.setPrototypeOf(this, AppError.prototype)
+  }
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getAnalyzedItemById = async (req: Request, res: Response): Promise<any> => {
@@ -19,7 +35,7 @@ export const getAnalyzedItemById = async (req: Request, res: Response): Promise<
     return res.status(response.status).json(result)
   } catch (error: unknown) {
     console.error(error)
-    return res.status(500).json({ message: 'An unexpected error occurred.' })
+    handleError(res, error)
   }
 }
 
@@ -34,7 +50,7 @@ export const getGeneralDetailById = async (req: Request, res: Response): Promise
     res.status(response.status).json(result)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ message: 'An unexpected error occurred.' })
+    handleError(res, error)
   }
 }
 
@@ -49,6 +65,6 @@ export const getAverageDetailById = async (req: Request, res: Response): Promise
     res.status(response.status).json(result)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ message: 'An unexpected error occurred.' })
+    handleError(res, error)
   }
 }

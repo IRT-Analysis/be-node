@@ -1,5 +1,5 @@
 import { uploadFile } from '@/controllers/media.controller'
-import multerMiddleware from '@/middlewares/multerMiddleware'
+import multerMiddleware from '@/middlewares/multer.middleware'
 import { Router } from 'express'
 
 const router = Router()

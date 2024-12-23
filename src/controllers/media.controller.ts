@@ -1,37 +1,39 @@
 import FormData from 'form-data'
 import { Request, Response } from 'express'
-
 import dotenv from 'dotenv'
 import axios from 'axios'
+import { AppError } from '@/controllers/analysis.controller'
+import { handleError } from '@/middlewares/error.middleware'
 
 dotenv.config()
 
+interface FlaskResponse {
+  code: number
+  message: string
+  data: unknown
+}
+
 export const uploadFile = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Validate uploaded file
     if (!req.file) {
-      res.status(400).json({ message: 'No file uploaded' })
-      return
+      throw new AppError('No file uploaded', 400)
     }
 
+    // Prepare form data
     const formData = new FormData()
-
     formData.append('file', req.file.buffer as Buffer, {
       filename: req.file.originalname,
       contentType: req.file.mimetype,
     })
 
-    const response = await axios.post(`${process.env.FLASK_API_ENDPOINT}/ctt`, formData, {
-      headers: {
-        ...formData.getHeaders(),
-      },
+    // Send file to Flask API
+    const { data } = await axios.post<FlaskResponse>(`${process.env.FLASK_API_ENDPOINT}/ctt`, formData, {
+      headers: { ...formData.getHeaders() },
     })
 
-    res.status(201).json(response.data)
-  } catch (error) {
-    console.error('Error uploading file:', error)
-    res.status(500).json({
-      message: 'Failed to process file',
-      error: (error as Error).message,
-    })
+    res.status(data.code).json(data)
+  } catch (error: unknown) {
+    handleError(res, error)
   }
 }
