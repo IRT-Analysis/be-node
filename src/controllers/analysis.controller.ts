@@ -16,7 +16,6 @@ export class AppError extends Error {
     this.status = status
     if (error) this.error = error
 
-    // Ensure the prototype chain is set correctly
     Object.setPrototypeOf(this, AppError.prototype)
   }
 }
@@ -34,7 +33,7 @@ export const getAnalyzedItemById = async (req: Request, res: Response): Promise<
     }
     return res.status(response.status).json(result)
   } catch (error: unknown) {
-    console.error(error)
+    // console.error(error)
     handleError(res, error)
   }
 }
@@ -42,21 +41,6 @@ export const getAnalyzedItemById = async (req: Request, res: Response): Promise<
 export const getGeneralDetailById = async (req: Request, res: Response): Promise<void> => {
   try {
     const response = await axios.get(`${process.env.FLASK_API_ENDPOINT}/ctt/${req.params.id}/general-detail`)
-    const result = response.data as { message: string; data: unknown }
-    if (!result) {
-      res.status(response.status).json({ message: (result as { message: string }).message })
-      return
-    }
-    res.status(response.status).json(result)
-  } catch (error) {
-    console.error(error)
-    handleError(res, error)
-  }
-}
-
-export const getAverageDetailById = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const response = await axios.get(`${process.env.FLASK_API_ENDPOINT}/ctt/${req.params.id}/average-detail`)
     const result = response.data as { message: string; data: unknown }
     if (!result) {
       res.status(response.status).json({ message: (result as { message: string }).message })
