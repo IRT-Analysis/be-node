@@ -2,8 +2,8 @@ import FormData from 'form-data'
 import { Request, Response } from 'express'
 import dotenv from 'dotenv'
 import axios from 'axios'
-import { AppError } from '@/controllers/analysis.controller'
 import { handleError } from '@/middlewares/error.middleware'
+import { AppError } from './analysis.controller'
 
 dotenv.config()
 
@@ -15,19 +15,29 @@ interface FlaskResponse {
 
 export const uploadFile = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Validate uploaded file
-    if (!req.file) {
-      throw new AppError('No file uploaded', 400)
+    console.log('req.files:', req.files)
+
+    // Validate and access files
+    const requiredFiles = ['result_file', 'exam_file', 'question_bank_file']
+    const files = req.files as { [key: string]: Express.Multer.File[] }
+
+    for (const fileKey of requiredFiles) {
+      if (!files[fileKey] || files[fileKey].length === 0) {
+        throw new AppError(`Missing file: ${fileKey}`, 400)
+      }
     }
 
     // Prepare form data
     const formData = new FormData()
-    formData.append('file', req.file.buffer as Buffer, {
-      filename: req.file.originalname,
-      contentType: req.file.mimetype,
-    })
+    for (const fileKey of requiredFiles) {
+      const file = files[fileKey][0] // Access the first file for each key
+      formData.append(fileKey, file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      })
+    }
 
-    // Send file to Flask API
+    // Send files to Flask API
     const { data } = await axios.post<FlaskResponse>(`${process.env.FLASK_API_ENDPOINT}/ctt`, formData, {
       headers: { ...formData.getHeaders() },
     })

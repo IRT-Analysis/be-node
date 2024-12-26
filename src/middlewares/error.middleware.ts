@@ -13,7 +13,7 @@ export const createError = (code: number, message: string, error?: Record<string
 }
 
 export const handleError = (res: Response, error: unknown): void => {
-  // console.log('Error:', error)
+  console.log('Error:', error)
 
   if (error instanceof AppError) {
     // Handle custom AppError
