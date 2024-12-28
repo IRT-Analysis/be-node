@@ -15,10 +15,8 @@ interface FlaskResponse {
 
 export const uploadFile = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log('req.files:', req.files)
-
     // Validate and access files
-    const requiredFiles = ['result_file', 'exam_file', 'question_bank_file']
+    const requiredFiles = ['result_file', 'exam_file']
     const files = req.files as { [key: string]: Express.Multer.File[] }
 
     for (const fileKey of requiredFiles) {
