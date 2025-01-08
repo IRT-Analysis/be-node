@@ -11,9 +11,17 @@ dotenv.config()
 const app: Application = express()
 const port = process.env.PORT || 3000
 
+const allowedOrigins = ['https://lifeistoolong.id.vn', 'https://www.lifeistoolong.id.vn']
+
 app.use(
   cors({
-    origin: 'http://10.0.0.4:4173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     methods: 'GET,POST,PUT,DELETE',
     credentials: false,
   })
