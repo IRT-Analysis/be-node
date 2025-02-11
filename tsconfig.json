@@ -110,6 +110,6 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "files": ["src/type.d.ts"],
-  "include": ["src/**/*", "src/tests/**/*.ts", "eslint.config.mjs", "commitlint.config.mjs"],
+  "include": ["src/**/*.ts", "eslint.config.mjs", "commitlint.config.mjs"],
   "exclude": ["node_modules", "dist"]
 }
