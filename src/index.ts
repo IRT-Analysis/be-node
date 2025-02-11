@@ -1,10 +1,11 @@
-import { invalidPathHandler } from './middlewares/error.middleware'
-// src/index.ts
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express, { Application, Request, Response } from 'express'
+import { invalidPathHandler } from './middlewares/error.middleware'
 import { analysisRoutes } from './routes/cttAnalysis.routes'
 import { uploadRoutes } from './routes/upload.routes'
+import logger from './utils/logger'
+import morgan from 'morgan'
 
 dotenv.config()
 
@@ -12,6 +13,24 @@ const app: Application = express()
 const port = process.env.PORT || 3000
 
 const allowedOrigins = ['https://lifeistoolong.id.vn', 'https://www.lifeistoolong.id.vn']
+
+const morganFormat = ':method :url :status :response-time ms'
+
+app.use(
+  morgan(morganFormat, {
+    stream: {
+      write: (message) => {
+        const logObject = {
+          method: message.split(' ')[0],
+          url: message.split(' ')[1],
+          status: message.split(' ')[2],
+          responseTime: message.split(' ')[3],
+        }
+        logger.info(JSON.stringify(logObject))
+      },
+    },
+  })
+)
 
 app.use(
   cors({
@@ -29,6 +48,7 @@ app.use(
 
 app.use('/api', uploadRoutes)
 app.use('/api', analysisRoutes)
+
 app.use(invalidPathHandler)
 
 app.get('/', (req: Request, res: Response) => {
