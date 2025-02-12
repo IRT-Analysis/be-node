@@ -1,8 +1,8 @@
-import axios from 'axios'
 import { Request, Response } from 'express'
 
 import dotenv from 'dotenv'
 import { handleError } from '@/middlewares/error.middleware'
+import httpClient from '@/utils/httpClient'
 
 dotenv.config()
 
@@ -26,7 +26,7 @@ export const getAnalyzedItemById = async (req: Request, res: Response): Promise<
     // const { jobId } = req.params
     // Retrieve the result using the jobId
     // const response = await axios.get(`${process.env.FLASK_API_ENDPOINT}/api/analyze/ctt/${jobId}`)
-    const response = await axios.get(`${process.env.FLASK_API_ENDPOINT}/ctt/${req.params.id}`)
+    const response = await httpClient.get(`/ctt/${req.params.id}`)
     const result = response.data as { message: string; data: unknown }
     if (!result) {
       return res.status(response.status).json({ message: (result as { message: string }).message })
@@ -40,7 +40,7 @@ export const getAnalyzedItemById = async (req: Request, res: Response): Promise<
 
 export const getGeneralDetailById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const response = await axios.get(`${process.env.FLASK_API_ENDPOINT}/ctt/${req.params.id}/general-detail`)
+    const response = await httpClient.get(`/ctt/${req.params.id}/general-detail`)
     const result = response.data as { message: string; data: unknown }
     if (!result) {
       res.status(response.status).json({ message: (result as { message: string }).message })
