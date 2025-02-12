@@ -1,9 +1,9 @@
 import FormData from 'form-data'
 import { Request, Response } from 'express'
 import dotenv from 'dotenv'
-import axios from 'axios'
 import { handleError } from '@/middlewares/error.middleware'
 import { AppError } from './analysis.controller'
+import httpClient from '@/utils/httpClient'
 
 dotenv.config()
 
@@ -36,7 +36,7 @@ export const uploadFile = async (req: Request, res: Response): Promise<void> => 
     }
 
     // Send files to Flask API
-    const { data } = await axios.post<FlaskResponse>(`${process.env.FLASK_API_ENDPOINT}/ctt`, formData, {
+    const { data } = await httpClient.post<FlaskResponse>(`/ctt`, formData, {
       headers: { ...formData.getHeaders() },
     })
 
