@@ -45,7 +45,7 @@ export const handleError = (res: Response, error: unknown): void => {
   console.error('Unexpected error:', error)
   res.status(500).json({
     message: 'An unexpected error occurred.',
-    error: String(error), // Convert unknown error to a string
+    error: String(error),
     code: 500,
   })
 }

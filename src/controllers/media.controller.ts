@@ -1,19 +1,20 @@
 import FormData from 'form-data'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import dotenv from 'dotenv'
 import { handleError } from '@/middlewares/error.middleware'
 import { AppError } from './analysis.controller'
 import httpClient from '@/utils/httpClient'
+import { AuthenticatedRequest } from '@/middlewares/auth.middleware'
 
 dotenv.config()
 
-interface FlaskResponse {
+type FlaskResponse<T> = {
   code: number
   message: string
-  data: unknown
+  data: T
 }
 
-export const uploadFile = async (req: Request, res: Response): Promise<void> => {
+export const uploadFile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     // Validate and access files
     const requiredFiles = ['result_file', 'exam_file']
@@ -25,10 +26,9 @@ export const uploadFile = async (req: Request, res: Response): Promise<void> => 
       }
     }
 
-    // Prepare form data
     const formData = new FormData()
     for (const fileKey of requiredFiles) {
-      const file = files[fileKey][0] // Access the first file for each key
+      const file = files[fileKey][0]
       formData.append(fileKey, file.buffer, {
         filename: file.originalname,
         contentType: file.mimetype,
@@ -36,7 +36,7 @@ export const uploadFile = async (req: Request, res: Response): Promise<void> => 
     }
 
     // Send files to Flask API
-    const { data } = await httpClient.post<FlaskResponse>(`/ctt`, formData, {
+    const { data } = await httpClient.post<FlaskResponse<string>>(`/`, formData, {
       headers: { ...formData.getHeaders() },
     })
 
