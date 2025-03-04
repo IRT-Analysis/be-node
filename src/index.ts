@@ -6,6 +6,7 @@ import { analysisRoutes } from './routes/cttAnalysis.routes'
 import { uploadRoutes } from './routes/upload.routes'
 import logger from './utils/logger'
 import morgan from 'morgan'
+import { authMiddleware } from './middlewares/auth.middleware'
 
 dotenv.config()
 
@@ -46,7 +47,7 @@ app.use(
   })
 )
 
-app.use('/api', uploadRoutes)
+app.use('/api', authMiddleware, uploadRoutes)
 app.use('/api', analysisRoutes)
 
 app.use(invalidPathHandler)
