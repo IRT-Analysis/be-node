@@ -1,54 +1,56 @@
-import { Request, Response } from 'express'
-
 import dotenv from 'dotenv'
-import { handleError } from '@/middlewares/error.middleware'
-import httpClient from '@/utils/httpClient'
+import { Request, Response } from 'express'
+import { supabase } from '@/utils/supabaseClient'
+import { handleError } from '@/utils/errorHandler'
 
 dotenv.config()
 
-export class AppError extends Error {
-  public status: number
-  public error?: Record<string, unknown>
-
-  constructor(message: string, status: number, error?: Record<string, unknown>) {
-    super()
-    this.message = message
-    this.status = status
-    if (error) this.error = error
-
-    Object.setPrototypeOf(this, AppError.prototype)
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getAnalyzedItemById = async (req: Request, res: Response): Promise<any> => {
+export const getAnalyzedItemById = async (req: Request, res: Response): Promise<unknown> => {
   try {
-    // const { jobId } = req.params
-    // Retrieve the result using the jobId
-    // const response = await axios.get(`${process.env.FLASK_API_ENDPOINT}/api/analyze/ctt/${jobId}`)
-    const response = await httpClient.get(`/ctt/${req.params.id}`)
-    const result = response.data as { message: string; data: unknown }
-    if (!result) {
-      return res.status(response.status).json({ message: (result as { message: string }).message })
+    const { id } = req.params
+
+    // Query Supabase table where the analysis results are stored
+    const { data, error, status } = await supabase
+      .from('analysis_results') // Change to the actual table name
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      return res.status(status || 500).json({ message: 'Error fetching data', error })
     }
-    return res.status(response.status).json(result)
+
+    if (!data) {
+      return res.status(404).json({ message: 'Analysis result not found' })
+    }
+
+    res.status(200).json({ message: 'Analysis retrieved successfully', data })
   } catch (error: unknown) {
-    // console.error(error)
     handleError(res, error)
   }
 }
 
-export const getGeneralDetailById = async (req: Request, res: Response): Promise<void> => {
+export const getGeneralDetailById = async (req: Request, res: Response): Promise<unknown> => {
   try {
-    const response = await httpClient.get(`/ctt/${req.params.id}/general-detail`)
-    const result = response.data as { message: string; data: unknown }
-    if (!result) {
-      res.status(response.status).json({ message: (result as { message: string }).message })
-      return
+    const { id } = req.params
+
+    // Query Supabase for general analysis details
+    const { data, error, status } = await supabase
+      .from('analysis_details') // Change to the actual table name
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      return res.status(status || 500).json({ message: 'Error fetching general details', error })
     }
-    res.status(response.status).json(result)
+
+    if (!data) {
+      return res.status(404).json({ message: 'General analysis details not found' })
+    }
+
+    res.status(200).json({ message: 'General details retrieved successfully', data })
   } catch (error) {
-    console.error(error)
     handleError(res, error)
   }
 }
