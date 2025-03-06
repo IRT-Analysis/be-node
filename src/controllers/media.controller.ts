@@ -1,10 +1,9 @@
 import FormData from 'form-data'
 import { Response } from 'express'
 import dotenv from 'dotenv'
-import { handleError } from '@/middlewares/error.middleware'
-import { AppError } from './analysis.controller'
 import httpClient from '@/utils/httpClient'
 import { AuthenticatedRequest } from '@/middlewares/auth.middleware'
+import { AppError, handleError } from '@/utils/errorHandler'
 
 dotenv.config()
 
