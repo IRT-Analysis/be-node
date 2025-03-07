@@ -1,4 +1,4 @@
-import { analysisRoutes } from '@/routes/cttAnalysis.routes'
+import { analysisRoutes } from '@/routes/analysis.routes'
 import request from 'supertest'
 import express from 'express'
 import dotenv from 'dotenv'

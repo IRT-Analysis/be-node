@@ -1,4 +1,4 @@
-import { uploadFile } from '@/controllers/media.controller'
+import { createAnalysis, getGeneralDetails } from '@/controllers/analysis.controller'
 import multerMiddleware from '@/middlewares/multer.middleware'
 import { Router } from 'express'
 
@@ -43,6 +43,9 @@ const router = Router()
  *       500:
  *         description: Internal server error
  */
-router.post('/upload', multerMiddleware, uploadFile)
 
-export const uploadRoutes = router
+router.post(`/analyze`, multerMiddleware, createAnalysis)
+
+router.get('/general-details', getGeneralDetails)
+
+export const analysisRoutes = router
