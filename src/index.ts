@@ -6,8 +6,8 @@ import { errorHandler, invalidPathHandler } from './middlewares/error.middleware
 import loggerMidleware from './middlewares/logger.middleware'
 import { analysisRoutes } from './routes/analysis.routes'
 import { swaggerDocs } from './utils/swaggerConfig'
-import { authRoutes } from './routes/auth.route'
-import { accountRoutes } from './routes/account.route'
+import { authRoutes } from './routes/auth.routes'
+import { accountRoutes } from './routes/account.routes'
 
 dotenv.config()
 
@@ -21,7 +21,7 @@ app.use(corsMiddleware)
 
 app.use('/api', analysisRoutes)
 app.use('/api/auth', authRoutes)
-app.use('/api', accountRoutes)
+app.use('/api/my', accountRoutes)
 
 app.use(invalidPathHandler)
 
