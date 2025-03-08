@@ -1,27 +1,36 @@
+import { UserType } from '@/types/user.type'
+import { AppError, handleError } from '@/utils/errorHandler'
+import { supabase } from '@/utils/supabaseClient'
 import { NextFunction, Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
 
 export interface AuthenticatedRequest extends Request {
-  email?: string
-  userId?: string
+  user?: UserType
 }
-export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const token = req.headers['authorization']?.split(' ')[1]
-  const jwtSecret = process.env.SUPABASE_JWT_SECRET!
 
-  if (!token) {
-    res.status(401).json({ error: 'Unauthorized: Missing token' })
-    return
-  }
+export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const authHeader = req.headers['authorization']
 
-  jwt.verify(token, jwtSecret, (err, decoded: unknown) => {
-    if (err) {
-      console.error('Error parsing token:', err)
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' })
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new AppError('Unauthorized: Missing or invalid token', 401)
     }
-    const payload = decoded as { email: string; sub: string }
-    req.email = payload.email
-    req.userId = payload.sub
+
+    const token = authHeader.replace('Bearer ', '')
+
+    const { data, error } = await supabase.auth.getUser(token)
+
+    if (error || !data?.user) {
+      throw new AppError('Unauthorized: Invalid token', 401)
+    }
+
+    req.user = {
+      id: data.user.id,
+      email: data.user.email!,
+      role: data.user.role!,
+    }
+
     next()
-  })
+  } catch (error) {
+    handleError(res, error)
+  }
 }

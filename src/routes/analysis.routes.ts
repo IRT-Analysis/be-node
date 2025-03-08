@@ -3,7 +3,9 @@ import {
   getAllQuestionAnalysis,
   getGeneralDetails,
   getHistogramData,
+  getOptionsAnalysis,
   getOptionAnalysis,
+  getQuestionAnalysis,
 } from '@/controllers/analysis.controller'
 import multerMiddleware from '@/middlewares/multer.middleware'
 import { Router } from 'express'
@@ -54,7 +56,9 @@ router.post(`/analyze`, multerMiddleware, createAnalysis)
 
 router.get('/general-details', getGeneralDetails)
 router.get('/histogram', getHistogramData)
-router.get('/question-analysis', getAllQuestionAnalysis)
+router.get('/questions-analysis', getAllQuestionAnalysis)
+router.get('/question-analysis', getQuestionAnalysis)
+router.get('/options-analysis', getOptionsAnalysis)
 router.get('/option-analysis', getOptionAnalysis)
 
 export const analysisRoutes = router
