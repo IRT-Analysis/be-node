@@ -37,7 +37,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ message: 'Email and password are required' })
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -49,6 +49,20 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({ message: 'User signed up successfully', data, code: 201 })
   } catch (error) {
     console.error(error)
+    handleError(res, error)
+  }
+}
+
+export const signOut = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      throw new AppError(error.message, 400)
+    }
+
+    res.status(200).json({ message: 'User signed out successfully', code: 200 })
+  } catch (error) {
     handleError(res, error)
   }
 }

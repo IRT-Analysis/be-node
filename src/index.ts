@@ -2,11 +2,12 @@ import dotenv from 'dotenv'
 import express, { Application } from 'express'
 import swaggerUi from 'swagger-ui-express'
 import corsMiddleware from './middlewares/cors.middleware'
-import { invalidPathHandler } from './middlewares/error.middleware'
+import { errorHandler, invalidPathHandler } from './middlewares/error.middleware'
 import loggerMidleware from './middlewares/logger.middleware'
 import { analysisRoutes } from './routes/analysis.routes'
 import { swaggerDocs } from './utils/swaggerConfig'
 import { authRoutes } from './routes/auth.route'
+import { accountRoutes } from './routes/account.route'
 
 dotenv.config()
 
@@ -20,8 +21,11 @@ app.use(corsMiddleware)
 
 app.use('/api', analysisRoutes)
 app.use('/api/auth', authRoutes)
+app.use('/api', accountRoutes)
 
 app.use(invalidPathHandler)
+
+app.use(errorHandler)
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)

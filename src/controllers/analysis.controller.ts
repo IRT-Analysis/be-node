@@ -2,16 +2,26 @@ import { AuthenticatedRequest } from '@/middlewares/auth.middleware'
 import { AppError, handleError } from '@/utils/errorHandler'
 import httpClient from '@/utils/httpClient'
 import dotenv from 'dotenv'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import FormData from 'form-data'
+import {
+  AnalyzeResType,
+  GetAllQuestionAnalysisResType,
+  GetHistogramResType,
+  GetOptionAnalysisResType,
+  GetOptionsAnalysisResType,
+  GetQuestionAnalysisResType,
+  OptionAnalysisType,
+  QuestionAnalysisType,
+} from './../schema/analysis.schema'
 
 import { AnalysisType, REQUIRED_FILES } from '@/constant'
+import { GetGeneralDetailsResType } from '@/schema/analysis.schema'
 import { supabase } from '@/utils/supabaseClient'
-import { ApiResponse } from '@/types/response_data.type'
 
 dotenv.config()
 
-export const createAnalysis = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const createAnalysis = async (req: AuthenticatedRequest, res: Response<AnalyzeResType>): Promise<void> => {
   try {
     const { type } = req.query as { type: keyof typeof AnalysisType }
 
@@ -36,9 +46,13 @@ export const createAnalysis = async (req: AuthenticatedRequest, res: Response): 
       })
     }
 
-    const { data } = await httpClient.post<ApiResponse<string>>(`/?type=${type}`, formData, {
+    const { data } = await httpClient.post<AnalyzeResType>(`/?type=${type}`, formData, {
       headers: { ...formData.getHeaders() },
     })
+
+    if (!data) {
+      throw new AppError('Analysis failed', 500)
+    }
 
     res.status(data.code).json(data)
   } catch (error) {
@@ -46,7 +60,10 @@ export const createAnalysis = async (req: AuthenticatedRequest, res: Response): 
   }
 }
 
-export const getGeneralDetails = async (req: Request, res: Response): Promise<void> => {
+export const getGeneralDetails = async (
+  req: AuthenticatedRequest,
+  res: Response<GetGeneralDetailsResType>
+): Promise<void> => {
   try {
     const { projectId } = req.query
 
@@ -56,9 +73,9 @@ export const getGeneralDetails = async (req: Request, res: Response): Promise<vo
 
     const { data, error } = await supabase
       .from('exam_analysis')
-      .select('*, projects(name ,total_options,total_students,total_questions)')
+      .select('*, projects(name,total_options,total_students,total_questions)')
       .eq('project_id', projectId)
-      .single()
+      .maybeSingle()
 
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
@@ -74,7 +91,10 @@ export const getGeneralDetails = async (req: Request, res: Response): Promise<vo
   }
 }
 
-export const getHistogramData = async (req: Request, res: Response): Promise<void> => {
+export const getHistogramData = async (
+  req: AuthenticatedRequest,
+  res: Response<GetHistogramResType>
+): Promise<void> => {
   try {
     const { projectId } = req.query
 
@@ -82,7 +102,7 @@ export const getHistogramData = async (req: Request, res: Response): Promise<voi
       throw new AppError('Query parameter "projectId" is required', 400)
     }
 
-    const { data, error } = await supabase.from('projects').select('histogram').single()
+    const { data, error } = await supabase.from('projects').select('histogram').eq('id', projectId).maybeSingle()
 
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
@@ -98,7 +118,10 @@ export const getHistogramData = async (req: Request, res: Response): Promise<voi
   }
 }
 
-export const getAllQuestionAnalysis = async (req: Request, res: Response): Promise<void> => {
+export const getAllQuestionAnalysis = async (
+  req: AuthenticatedRequest,
+  res: Response<GetAllQuestionAnalysisResType>
+): Promise<void> => {
   try {
     const { examId } = req.query
 
@@ -110,13 +133,14 @@ export const getAllQuestionAnalysis = async (req: Request, res: Response): Promi
       .from('questions')
       .select('id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate)')
       .eq('exam_id', examId)
+      .returns<QuestionAnalysisType[]>()
 
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
     }
 
     if (!data) {
-      throw new AppError('Exam id not found', 404)
+      throw new AppError('Exam not found', 404)
     }
 
     res.status(200).json({ message: 'All question analyses retrieved', data, code: 200 })
@@ -125,7 +149,10 @@ export const getAllQuestionAnalysis = async (req: Request, res: Response): Promi
   }
 }
 
-export const getOptionAnalysis = async (req: Request, res: Response): Promise<void> => {
+export const getQuestionAnalysis = async (
+  req: AuthenticatedRequest,
+  res: Response<GetQuestionAnalysisResType>
+): Promise<void> => {
   try {
     const { questionId } = req.query
 
@@ -134,16 +161,79 @@ export const getOptionAnalysis = async (req: Request, res: Response): Promise<vo
     }
 
     const { data, error } = await supabase
-      .from('options') // Assuming 'options' is the table storing question options
+      .from('questions')
+      .select('id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate)')
+      .eq('id', questionId)
+      .returns<QuestionAnalysisType>()
+    if (error) {
+      throw new AppError(`Supabase error: ${error.message}`, 500)
+    }
+
+    if (!data) {
+      throw new AppError('Question not found', 404)
+    }
+
+    res.status(200).json({ message: 'Specific question analysis retrieved', data, code: 200 })
+  } catch (error) {
+    handleError(res, error)
+  }
+}
+
+export const getOptionsAnalysis = async (
+  req: AuthenticatedRequest,
+  res: Response<GetOptionsAnalysisResType>
+): Promise<void> => {
+  try {
+    const { questionId } = req.query
+
+    if (!questionId) {
+      throw new AppError('Query parameters "questionId" are required', 400)
+    }
+
+    const { data, error } = await supabase
+      .from('options')
       .select('id, content, option_analysis(discrimination_index, rpbis, selection_rate)')
       .eq('question_id', questionId)
+      .returns<OptionAnalysisType[]>()
 
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
     }
 
     if (!data) {
-      throw new AppError('Exam id not found', 404)
+      throw new AppError('Exam not found', 404)
+    }
+
+    res.status(200).json({ message: 'Specific question analysis retrieved', data, code: 200 })
+  } catch (error) {
+    handleError(res, error)
+  }
+}
+
+export const getOptionAnalysis = async (
+  req: AuthenticatedRequest,
+  res: Response<GetOptionAnalysisResType>
+): Promise<void> => {
+  try {
+    const { optionId } = req.query
+
+    if (!optionId) {
+      throw new AppError('Query parameters "optionId" are required', 400)
+    }
+
+    const { data, error } = await supabase
+      .from('options')
+      .select('id, content, option_analysis(discrimination_index, rpbis, selection_rate)')
+      .eq('id', optionId)
+      .returns<OptionAnalysisType>()
+      .maybeSingle()
+
+    if (error) {
+      throw new AppError(`Supabase error: ${error.message}`, 500)
+    }
+
+    if (!data) {
+      throw new AppError('Option not found', 404)
     }
 
     res.status(200).json({ message: 'Specific question analysis retrieved', data, code: 200 })
