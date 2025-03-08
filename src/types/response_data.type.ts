@@ -1,10 +1,20 @@
-type GroupKeys = 'A' | 'B' | 'C' | 'D' | '*'
-
-export type GroupValues = {
-  [key in GroupKeys]: number
+export type ApiResponse<T> = {
+  code: number
+  message: string
+  data: T
 }
 
-export interface ItemData {
+enum GroupKeys {
+  A = 'A',
+  B = 'B',
+  C = 'C',
+  D = 'D',
+  NO_ANSWER = '*',
+}
+
+export type GroupValues = Record<GroupKeys, number>
+
+export type ItemData = {
   question: number
   difficulty: number
   discrimination_index: GroupValues

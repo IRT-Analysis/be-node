@@ -1,25 +1,25 @@
 import dotenv from 'dotenv'
-import express, { Application, Request, Response } from 'express'
+import express, { Application } from 'express'
+import swaggerUi from 'swagger-ui-express'
 import corsMiddleware from './middlewares/cors.middleware'
 import { invalidPathHandler } from './middlewares/error.middleware'
 import loggerMidleware from './middlewares/logger.middleware'
 import { analysisRoutes } from './routes/analysis.routes'
-import swaggerUi from 'swagger-ui-express'
 import { swaggerDocs } from './utils/swaggerConfig'
+import { authRoutes } from './routes/auth.route'
 
 dotenv.config()
 
 const app: Application = express()
 const port = process.env.PORT || 3000
+
 app.use(express.json())
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 app.use(loggerMidleware)
 app.use(corsMiddleware)
 
 app.use('/api', analysisRoutes)
-app.get('/', (req: Request, res: Response) => {
-  res.send('Express + TypeScript Server')
-})
+app.use('/api/auth', authRoutes)
 
 app.use(invalidPathHandler)
 

@@ -1,4 +1,10 @@
-import { createAnalysis, getGeneralDetails } from '@/controllers/analysis.controller'
+import {
+  createAnalysis,
+  getAllQuestionAnalysis,
+  getGeneralDetails,
+  getHistogramData,
+  getOptionAnalysis,
+} from '@/controllers/analysis.controller'
 import multerMiddleware from '@/middlewares/multer.middleware'
 import { Router } from 'express'
 
@@ -47,5 +53,8 @@ const router = Router()
 router.post(`/analyze`, multerMiddleware, createAnalysis)
 
 router.get('/general-details', getGeneralDetails)
+router.get('/histogram', getHistogramData)
+router.get('/question-analysis', getAllQuestionAnalysis)
+router.get('/option-analysis', getOptionAnalysis)
 
 export const analysisRoutes = router

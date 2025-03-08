@@ -1,4 +1,4 @@
-export type CTTAnalysisResult = {
+export type AnalysisResult = {
   [key: string]: {
     content: QuestionDetails
     difficulty: number
@@ -51,11 +51,11 @@ export type AverageDetails = Readonly<{
 }>
 
 export type RelevantKeys = Extract<
-  keyof CTTAnalysisResult[keyof CTTAnalysisResult],
+  keyof AnalysisResult[keyof AnalysisResult],
   'difficulty' | 'discrimination' | 'r_pbis'
 >
 
-type ValueType<Key extends RelevantKeys> = CTTAnalysisResult[keyof CTTAnalysisResult][Key]
+type ValueType<Key extends RelevantKeys> = AnalysisResult[keyof AnalysisResult][Key]
 
 export type ReviewQuestion = {
   id: string
