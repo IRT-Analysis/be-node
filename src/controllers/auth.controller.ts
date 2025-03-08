@@ -1,17 +1,14 @@
+import { SignInReqType, SignInResType, SignOutResType, SignUpReqType, SignUpResType } from '@/schema/auth.schema'
 import { AppError, handleError } from '@/utils/errorHandler'
 import { supabase } from '@/utils/supabaseClient'
 import { Request, Response } from 'express'
 
-interface AuthenticatedRequest extends Request {
-  email?: string
-}
-
-export const signIn = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const signIn = async (req: Request, res: Response<SignInResType>): Promise<void> => {
   try {
-    const { email, password } = req.body
+    const { email, password } = req.body as SignInReqType
 
     if (!email || !password) {
-      res.status(400).json({ message: 'Email and password are required' })
+      throw new AppError('Email and password are required', 400)
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -29,15 +26,15 @@ export const signIn = async (req: AuthenticatedRequest, res: Response): Promise<
   }
 }
 
-export const signUp = async (req: Request, res: Response): Promise<void> => {
+export const signUp = async (req: Request, res: Response<SignUpResType>): Promise<void> => {
   try {
-    const { email, password } = req.body
+    const { email, password } = req.body as SignUpReqType
 
     if (!email || !password) {
-      res.status(400).json({ message: 'Email and password are required' })
+      throw new AppError('Email and password are required', 400)
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     })
@@ -53,7 +50,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
-export const signOut = async (req: Request, res: Response): Promise<void> => {
+export const signOut = async (_req: Request, res: Response<SignOutResType>): Promise<void> => {
   try {
     const { error } = await supabase.auth.signOut()
 
@@ -61,7 +58,7 @@ export const signOut = async (req: Request, res: Response): Promise<void> => {
       throw new AppError(error.message, 400)
     }
 
-    res.status(200).json({ message: 'User signed out successfully', code: 200 })
+    res.status(200).json({ code: 200, message: 'User signed out successfully' })
   } catch (error) {
     handleError(res, error)
   }

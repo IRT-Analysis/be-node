@@ -1,9 +1,10 @@
 import { AuthenticatedRequest } from '@/middlewares/auth.middleware'
+import { MyProfileResType, MyProjectsResType } from '@/schema/account.schema'
 import { AppError, handleError } from '@/utils/errorHandler'
 import { supabase } from '@/utils/supabaseClient'
 import { Response } from 'express'
 
-export const getMyProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getMyProfile = async (req: AuthenticatedRequest, res: Response<MyProfileResType>): Promise<void> => {
   try {
     const user = req['user']
 
@@ -17,7 +18,7 @@ export const getMyProfile = async (req: AuthenticatedRequest, res: Response): Pr
   }
 }
 
-export const getMyProjects = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getMyProjects = async (req: AuthenticatedRequest, res: Response<MyProjectsResType>): Promise<void> => {
   try {
     const user = req['user']
 

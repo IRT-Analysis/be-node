@@ -165,6 +165,7 @@ export const getQuestionAnalysis = async (
       .select('id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate)')
       .eq('id', questionId)
       .returns<QuestionAnalysisType>()
+      .maybeSingle()
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
     }
