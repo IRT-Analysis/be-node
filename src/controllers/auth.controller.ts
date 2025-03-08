@@ -1,3 +1,5 @@
+import { AppError, handleError } from '@/utils/errorHandler'
+import { supabase } from '@/utils/supabaseClient'
 import { Request, Response } from 'express'
 
 interface AuthenticatedRequest extends Request {
@@ -5,23 +7,48 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const signIn = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-  const userEmail = req.email
   try {
-    if (!userEmail) {
-      throw new Error('Email not found in request')
+    const { email, password } = req.body
+
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email and password are required' })
     }
-    res.json({ message: `Our hidden value for the user ${userEmail}` })
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      throw new AppError(error.message, 400)
+    }
+
+    res.status(200).json({ message: 'User signed in successfully', data, code: 200 })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Internal server error' })
+    handleError(res, error)
   }
 }
 
 export const signUp = async (req: Request, res: Response): Promise<void> => {
   try {
-    res.json({ message: 'User signed up successfully' })
+    const { email, password } = req.body
+
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email and password are required' })
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+
+    if (error) {
+      throw new AppError(error.message, 400)
+    }
+
+    res.status(200).json({ message: 'User signed up successfully', data, code: 201 })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ message: 'Internal server error' })
+    handleError(res, error)
   }
 }
