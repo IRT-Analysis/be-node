@@ -5,8 +5,10 @@ import dotenv from 'dotenv'
 import { Response } from 'express'
 import FormData from 'form-data'
 import {
+  AnalyzeRequestType,
   AnalyzeResType,
   GetAllQuestionAnalysisResType,
+  GetGeneralDetailsQueryType,
   GetHistogramResType,
   GetOptionAnalysisResType,
   GetOptionsAnalysisResType,
@@ -26,7 +28,7 @@ export const createAnalysis = async (req: AuthenticatedRequest, res: Response<An
     const { type } = req.query as { type: keyof typeof AnalysisType }
 
     if (!type) {
-      throw new AppError('Query parameter "id" is required', 400)
+      throw new AppError('Query parameter "type" is required', 400)
     }
 
     const files = req.files as { [key: string]: Express.Multer.File[] }
@@ -37,7 +39,10 @@ export const createAnalysis = async (req: AuthenticatedRequest, res: Response<An
       }
     }
 
+    const { projectName, numberOfGroup, groupPercentage, correlationRpbis } = req.body as AnalyzeRequestType
+
     const formData = new FormData()
+
     for (const fileKey of REQUIRED_FILES) {
       const file = files[fileKey][0]
       formData.append(fileKey, file.buffer, {
@@ -45,6 +50,11 @@ export const createAnalysis = async (req: AuthenticatedRequest, res: Response<An
         contentType: file.mimetype,
       })
     }
+
+    if (projectName) formData.append('projectName', projectName)
+    if (numberOfGroup) formData.append('numberOfGroup', numberOfGroup.toString())
+    if (groupPercentage) formData.append('groupPercentage', groupPercentage.toString())
+    if (correlationRpbis) formData.append('correlationRpbis', correlationRpbis.toString())
 
     const { data } = await httpClient.post<AnalyzeResType>(`/?type=${type}`, formData, {
       headers: { ...formData.getHeaders() },
@@ -65,7 +75,7 @@ export const getGeneralDetails = async (
   res: Response<GetGeneralDetailsResType>
 ): Promise<void> => {
   try {
-    const { projectId } = req.query
+    const { projectId } = req.query as GetGeneralDetailsQueryType
 
     if (!projectId) {
       throw new AppError('Query parameter "projectId" is required', 400)
@@ -131,7 +141,9 @@ export const getAllQuestionAnalysis = async (
 
     const { data, error } = await supabase
       .from('questions')
-      .select('id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate)')
+      .select(
+        'id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate,group_choice_percentages)'
+      )
       .eq('exam_id', examId)
       .returns<QuestionAnalysisType[]>()
 
@@ -162,7 +174,9 @@ export const getQuestionAnalysis = async (
 
     const { data, error } = await supabase
       .from('questions')
-      .select('id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate)')
+      .select(
+        'id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate,group_choice_percentages)'
+      )
       .eq('id', questionId)
       .returns<QuestionAnalysisType>()
       .maybeSingle()
