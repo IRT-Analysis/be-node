@@ -1,5 +1,14 @@
 import { ApiResponse } from '@/types/response_data.type'
 
+export type AnalyzeRequestType = {
+  projectName: string
+  numberOfGroup: number
+  groupPercentage: number
+  correlationRpbis: string
+  questionFile: File[]
+  answerFile: File[]
+}
+
 type ProjectDetailsType = {
   name: string
   total_options: number
@@ -16,6 +25,7 @@ export type QuestionAnalysisType = {
     difficulty_index: number
     rpbis: number
     selection_rate: number
+    group_choice_percentages: Record<string, number>[]
   }
 }
 
@@ -43,7 +53,7 @@ export type AnalyzeResType = ApiResponse<{
 // ----------------------------------------------
 
 export type GetGeneralDetailsQueryType = {
-  examId: string
+  projectId: string
 }
 
 export type GetGeneralDetailsResType = ApiResponse<{
