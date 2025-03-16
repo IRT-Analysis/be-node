@@ -11,6 +11,7 @@ export type SignInResType = ApiResponse<AuthTokenResponsePassword['data']>
 export type SignUpReqType = {
   email: string
   password: string
+  option: { username: string }
 }
 
 export type SignUpResType = ApiResponse<AuthResponse['data']>

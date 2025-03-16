@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import express, { Application } from 'express'
 import swaggerUi from 'swagger-ui-express'
@@ -15,6 +16,7 @@ const app: Application = express()
 const port = process.env.PORT || 3000
 
 app.use(express.json())
+app.use(cookieParser())
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 app.use(loggerMidleware)
 app.use(corsMiddleware)

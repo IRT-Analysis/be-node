@@ -57,7 +57,8 @@ export const createAnalysis = async (req: AuthenticatedRequest, res: Response<An
     if (correlationRpbis) formData.append('correlationRpbis', correlationRpbis.toString())
 
     const { data } = await httpClient.post<AnalyzeResType>(`/?type=${type}`, formData, {
-      headers: { ...formData.getHeaders() },
+      headers: { ...formData.getHeaders(), Cookie: req.headers.cookie },
+      withCredentials: true,
     })
 
     if (!data) {
@@ -133,19 +134,29 @@ export const getAllQuestionAnalysis = async (
   res: Response<GetAllQuestionAnalysisResType>
 ): Promise<void> => {
   try {
-    const { examId } = req.query
+    const { projectId } = req.query
 
-    if (!examId) {
-      throw new AppError('Query parameter "examId" is required', 400)
+    if (!projectId) {
+      throw new AppError('Query parameter "projectId" is required', 400)
     }
 
-    const { data, error } = await supabase
+    const { data: examData, error } = await supabase
+      .from('exam_analysis')
+      .select('exam_id')
+      .eq('project_id', projectId)
+      .single()
+
+    const examId = examData!.exam_id
+
+    const { data, error: questionsError } = await supabase
       .from('questions')
       .select(
-        'id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate,group_choice_percentages)'
+        'id, exam_id, content, question_analysis(discrimination_index, difficulty_index, rpbis, selection_rate, group_choice_percentages)'
       )
       .eq('exam_id', examId)
       .returns<QuestionAnalysisType[]>()
+
+    if (questionsError) throw questionsError
 
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
