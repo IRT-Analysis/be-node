@@ -1,15 +1,20 @@
 import { ApiResponse } from '@/types/response_data.type'
 import { UserType } from '@/types/user.type'
+import { User } from '@supabase/supabase-js'
 
 export type ProjectType = {
-  id: string
+  created_at: string
+  user_id: string
   name: string
-  description: string | ''
+  id: string
+  total_questions: number
+  total_students: number
+  total_options: number
 }
 
 // ----------------------------------------------
 
-export type MyProfileResType = ApiResponse<UserType>
+export type MyProfileResType = ApiResponse<User>
 
 // ----------------------------------------------
 

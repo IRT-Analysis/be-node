@@ -5,17 +5,18 @@ import { NextFunction, Request, Response } from 'express'
 
 export interface AuthenticatedRequest extends Request {
   user?: UserType
+  cookies: {
+    auth_token?: string
+  }
 }
 
 export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const authHeader = req.headers['authorization']
+    const token = req.cookies['auth_token']
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AppError('Unauthorized: Missing or invalid token', 401)
+    if (!token) {
+      throw new AppError('Unauthorized: Missing token', 401)
     }
-
-    const token = authHeader.replace('Bearer ', '')
 
     const { data, error } = await supabase.auth.getUser(token)
 

@@ -6,8 +6,9 @@ import { Response } from 'express'
 
 export const getMyProfile = async (req: AuthenticatedRequest, res: Response<MyProfileResType>): Promise<void> => {
   try {
-    const user = req['user']
-
+    const {
+      data: { user },
+    } = await supabase.auth.getUser(req.cookies.auth_token)
     if (!user) {
       throw new AppError('User not found', 401)
     }
@@ -28,7 +29,7 @@ export const getMyProjects = async (req: AuthenticatedRequest, res: Response<MyP
 
     const { data, error } = await supabase
       .from('projects')
-      .select('id,name,description')
+      .select('created_at,user_id,name,id,total_questions,total_students,total_options')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 

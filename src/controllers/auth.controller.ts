@@ -15,12 +15,22 @@ export const signIn = async (req: Request, res: Response<SignInResType>): Promis
       email,
       password,
     })
+    if (data) {
+      if (data.session) {
+        const token = data.session.access_token
 
-    if (error) {
-      throw new AppError(error.message, 400)
+        if (error) {
+          throw new AppError(error.message, 400)
+        }
+        res.cookie('auth_token', token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+      }
+      res.status(200).json({ message: 'User signed in successfully', data, code: 200 })
     }
-
-    res.status(200).json({ message: 'User signed in successfully', data, code: 200 })
   } catch (error) {
     handleError(res, error)
   }
@@ -28,7 +38,7 @@ export const signIn = async (req: Request, res: Response<SignInResType>): Promis
 
 export const signUp = async (req: Request, res: Response<SignUpResType>): Promise<void> => {
   try {
-    const { email, password } = req.body as SignUpReqType
+    const { email, password, option } = req.body as SignUpReqType
 
     if (!email || !password) {
       throw new AppError('Email and password are required', 400)
@@ -37,6 +47,7 @@ export const signUp = async (req: Request, res: Response<SignUpResType>): Promis
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: { data: option },
     })
 
     if (error) {
