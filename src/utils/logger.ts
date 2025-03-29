@@ -20,4 +20,19 @@ const logger: Logger = createLogger({
   ],
 })
 
+// utils/requestLogger.ts (or in the same file)
+
+export const requestLoggerStream = {
+  write: (message: string) => {
+    const parts = message.trim().split(' ')
+    const logObject = {
+      method: parts[0],
+      url: parts[1],
+      status: parts[2],
+      responseTime: parts[3],
+    }
+    logger.info(JSON.stringify(logObject))
+  },
+}
+
 export default logger

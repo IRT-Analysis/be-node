@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const flaskApiBaseUrl = process.env.FLASK_API_ENDPOINT || 'http://localhost:5000'
+const flaskApiBaseUrl = process.env.FLASK_API_ENDPOINT
 
 const httpClient = axios.create({
   baseURL: `${flaskApiBaseUrl}/api/analyze`,

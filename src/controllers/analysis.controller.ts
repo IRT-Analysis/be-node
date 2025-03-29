@@ -123,7 +123,7 @@ export const getHistogramData = async (
       throw new AppError('Project not found', 404)
     }
 
-    res.status(200).json({ message: 'Histogram data retrieved', data: data.histogram, code: 200 })
+    res.status(200).json({ message: 'Histogram data retrieved', data: data?.histogram, code: 200 })
   } catch (error) {
     handleError(res, error)
   }
@@ -146,7 +146,13 @@ export const getAllQuestionAnalysis = async (
       .eq('project_id', projectId)
       .single()
 
-    const examId = examData!.exam_id
+    const examId = examData?.exam_id
+
+    console.log('Exam ID:', examData)
+
+    if (!examId) {
+      throw new AppError('Exam not found', 404)
+    }
 
     const { data, error: questionsError } = await supabase
       .from('questions')
@@ -156,14 +162,16 @@ export const getAllQuestionAnalysis = async (
       .eq('exam_id', examId)
       .returns<QuestionAnalysisType[]>()
 
-    if (questionsError) throw questionsError
+    if (questionsError) {
+      throw new AppError(`Supabase error: ${questionsError.message}`, 500)
+    }
 
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
     }
 
     if (!data) {
-      throw new AppError('Exam not found', 404)
+      throw new AppError('Questions not found', 404)
     }
 
     res.status(200).json({ message: 'All question analyses retrieved', data, code: 200 })
@@ -251,7 +259,6 @@ export const getOptionAnalysis = async (
       .from('options')
       .select('id, content, option_analysis(discrimination_index, rpbis, selection_rate)')
       .eq('id', optionId)
-      .returns<OptionAnalysisType>()
       .maybeSingle()
 
     if (error) {
@@ -262,7 +269,9 @@ export const getOptionAnalysis = async (
       throw new AppError('Option not found', 404)
     }
 
-    res.status(200).json({ message: 'Specific question analysis retrieved', data, code: 200 })
+    res
+      .status(200)
+      .json({ message: 'Specific question analysis retrieved', data: data as unknown as OptionAnalysisType, code: 200 })
   } catch (error) {
     handleError(res, error)
   }

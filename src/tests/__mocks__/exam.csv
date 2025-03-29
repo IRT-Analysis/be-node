@@ -1,0 +1,6 @@
+Exam_code,Content,Option_A,Option_B,Option_C,Option_D,Correct_Option
+1010,Độ phức tạp thời gian của tìm kiếm nhị phân là gì?,O(n),O(log n),O(n log n),O(1),B
+1010,Trong max heap phần tử nào ở gốc?,Phần tử lớn nhất,Phần tử nhỏ nhất,Phần tử đầu tiên,Phần tử cuối cùng,A
+1010,Cấu trúc dữ liệu nào sau đây là ví dụ của cấu trúc dữ liệu phi tuyến tính?,Mảng,Danh sách liên kết,Đồ thị,Ngăn xếp,C
+1010,Cấu trúc dữ liệu nào sau đây không phải là kiểu danh sách liên kết?,Danh sách liên kết đôi,Danh sách mảng,Danh sách liên kết vòng,Danh sách liên kết không có thứ tự,D
+1010,Cấu trúc cây nào sau đây là cây cân bằng?,Cây tìm kiếm nhị phân,Cây AVL,Cây đỏ đen,Tất cả các cây trên,D
