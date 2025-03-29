@@ -30,6 +30,8 @@ export const signIn = async (req: Request, res: Response<SignInResType>): Promis
         })
       }
       res.status(200).json({ message: 'User signed in successfully', data, code: 200 })
+    } else {
+      throw new AppError(error?.message || 'Login failed', 400)
     }
   } catch (error) {
     handleError(res, error)
@@ -56,7 +58,6 @@ export const signUp = async (req: Request, res: Response<SignUpResType>): Promis
 
     res.status(200).json({ message: 'User signed up successfully', data, code: 201 })
   } catch (error) {
-    console.error(error)
     handleError(res, error)
   }
 }
