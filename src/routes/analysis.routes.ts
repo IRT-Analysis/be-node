@@ -6,6 +6,7 @@ import {
   getOptionsAnalysis,
   getOptionAnalysis,
   getQuestionAnalysis,
+  getStudentResult,
 } from '@/controllers/analysis.controller'
 import multerMiddleware from '@/middlewares/multer.middleware'
 import { Router } from 'express'
@@ -52,13 +53,26 @@ const router = Router()
  *         description: Internal server error
  */
 
-router.post(`/analyze`, multerMiddleware, createAnalysis)
+const ROUTES = {
+  ANALYZE: '/analyze',
+  GENERAL_DETAILS: '/general-details',
+  HISTOGRAM: '/histogram',
+  QUESTIONS_ANALYSIS: '/questions',
+  QUESTION_ANALYSIS: '/question',
+  OPTIONS_ANALYSIS: '/options',
+  OPTION_ANALYSIS: '/option',
+  STUDENTs_ANALYSIS: '/students',
+  STUDENT_RESULT: '/student',
+}
 
-router.get('/general-details', getGeneralDetails)
-router.get('/histogram', getHistogramData)
-router.get('/questions-analysis', getAllQuestionAnalysis)
-router.get('/question-analysis', getQuestionAnalysis)
-router.get('/options-analysis', getOptionsAnalysis)
-router.get('/option-analysis', getOptionAnalysis)
+router.post(ROUTES.ANALYZE, multerMiddleware, createAnalysis)
+
+router.get(ROUTES.GENERAL_DETAILS, getGeneralDetails)
+router.get(ROUTES.HISTOGRAM, getHistogramData)
+router.get(ROUTES.QUESTIONS_ANALYSIS, getAllQuestionAnalysis)
+router.get(ROUTES.QUESTION_ANALYSIS, getQuestionAnalysis)
+router.get(ROUTES.OPTIONS_ANALYSIS, getOptionsAnalysis)
+router.get(ROUTES.OPTION_ANALYSIS, getOptionAnalysis)
+router.get(ROUTES.STUDENT_RESULT, getStudentResult)
 
 export const analysisRoutes = router

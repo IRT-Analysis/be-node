@@ -13,8 +13,11 @@ import {
   GetOptionAnalysisResType,
   GetOptionsAnalysisResType,
   GetQuestionAnalysisResType,
+  GetStudentResultResType,
   OptionAnalysisType,
   QuestionAnalysisType,
+  StudentResultType,
+  SupabaseStudentExamRaw,
 } from './../schema/analysis.schema'
 
 import { AnalysisType, REQUIRED_FILES } from '@/constant'
@@ -226,7 +229,9 @@ export const getOptionsAnalysis = async (
 
     const { data, error } = await supabase
       .from('options')
-      .select('id, content, option_analysis(discrimination_index, rpbis, selection_rate)')
+      .select(
+        'id, content, option_analysis(discrimination_index, rpbis, selection_rate, selected_by, top_selected, bottom_selected)'
+      )
       .eq('question_id', questionId)
       .returns<OptionAnalysisType[]>()
 
@@ -257,7 +262,9 @@ export const getOptionAnalysis = async (
 
     const { data, error } = await supabase
       .from('options')
-      .select('id, content, option_analysis(discrimination_index, rpbis, selection_rate)')
+      .select(
+        'id, content, option_analysis(discrimination_index, rpbis, selection_rate, selected_by, top_selected, bottom_selected)'
+      )
       .eq('id', optionId)
       .maybeSingle()
 
@@ -272,6 +279,90 @@ export const getOptionAnalysis = async (
     res
       .status(200)
       .json({ message: 'Specific question analysis retrieved', data: data as unknown as OptionAnalysisType, code: 200 })
+  } catch (error) {
+    handleError(res, error)
+  }
+}
+
+// Need to be tested
+export const getStudentResult = async (
+  req: AuthenticatedRequest,
+  res: Response<GetStudentResultResType>
+): Promise<void> => {
+  try {
+    const { studentExamId } = req.query as { studentExamId: string }
+
+    if (!studentExamId) {
+      throw new AppError('Query parameter "studentExamId" is required', 400)
+    }
+
+    // const { data, error } = await supabase.rpc<
+    //   string,
+    //   { Args: GetStudentResultQueryType; Returns: StudentResultType[] }
+    // >('get_student_result', {
+    //   _student_exam_id: studentExamId,
+    // })
+    const { data, error } = await supabase
+      .from('student_exams')
+      .select(
+        `
+        id,
+        first_name,
+        last_name,
+        total_score,
+        exam_id,
+        answers:student_answers (
+          is_correct,
+          selected_option:options (
+            id,
+            content
+          ),
+          question:questions (
+            id,
+            content,
+            correct_option:options!questions_correct_option_id_fkey (
+              id,
+              content
+            )
+          )
+        )
+      `
+      )
+      .eq('id', studentExamId)
+      .returns<SupabaseStudentExamRaw[]>()
+      .single()
+
+    if (error) {
+      throw new AppError(`Supabase RPC error: ${error.message}`, 500)
+    }
+
+    if (!data) {
+      throw new AppError('No student result found', 404)
+    }
+
+    const exam = data
+
+    const formatted: StudentResultType = {
+      id: exam.id,
+      first_name: exam.first_name,
+      last_name: exam.last_name,
+      total_score: exam.total_score,
+      exam_id: exam.exam_id,
+      answers: exam.answers.map((a) => ({
+        question_id: a.question.id,
+        question_content: a.question.content,
+        correct_option_id: a.question.correct_option?.id,
+        correct_option_content: a.question.correct_option?.content,
+        is_correct: a.is_correct,
+        selected_option: a.selected_option,
+      })),
+    }
+
+    res.status(200).json({
+      message: 'Student result retrieved',
+      data: formatted,
+      code: 200,
+    })
   } catch (error) {
     handleError(res, error)
   }

@@ -15,24 +15,30 @@ export const signIn = async (req: Request, res: Response<SignInResType>): Promis
       email,
       password,
     })
-    if (data) {
-      if (data.session) {
-        const token = data.session.access_token
-
-        if (error) {
-          throw new AppError(error.message, 400)
-        }
-        res.cookie('auth_token', token, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'lax',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-      }
-      res.status(200).json({ message: 'User signed in successfully', data, code: 200 })
-    } else {
-      throw new AppError(error?.message || 'Login failed', 400)
+    console.log('data', data)
+    console.log('error', error)
+    if (error) {
+      throw new AppError(error.message, 400)
     }
+
+    if (!data || !data.session) {
+      throw new AppError('Login failed: No session returned', 400)
+    }
+
+    const token = data.session.access_token
+
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    })
+
+    res.status(200).json({
+      message: 'User signed in successfully',
+      data,
+      code: 200,
+    })
   } catch (error) {
     handleError(res, error)
   }
