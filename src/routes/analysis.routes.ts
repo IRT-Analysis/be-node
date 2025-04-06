@@ -7,6 +7,7 @@ import {
   getOptionAnalysis,
   getQuestionAnalysis,
   getStudentResult,
+  getStudentsByExamId,
 } from '@/controllers/analysis.controller'
 import multerMiddleware from '@/middlewares/multer.middleware'
 import { Router } from 'express'
@@ -73,6 +74,7 @@ router.get(ROUTES.QUESTIONS_ANALYSIS, getAllQuestionAnalysis)
 router.get(ROUTES.QUESTION_ANALYSIS, getQuestionAnalysis)
 router.get(ROUTES.OPTIONS_ANALYSIS, getOptionsAnalysis)
 router.get(ROUTES.OPTION_ANALYSIS, getOptionAnalysis)
+router.get(ROUTES.STUDENTs_ANALYSIS, getStudentsByExamId)
 router.get(ROUTES.STUDENT_RESULT, getStudentResult)
 
 export const analysisRoutes = router

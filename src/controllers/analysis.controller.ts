@@ -13,7 +13,9 @@ import {
   GetOptionAnalysisResType,
   GetOptionsAnalysisResType,
   GetQuestionAnalysisResType,
+  GetStudentResultQueryType,
   GetStudentResultResType,
+  GetStudentsAnalysisResType,
   OptionAnalysisType,
   QuestionAnalysisType,
   StudentResultType,
@@ -290,18 +292,12 @@ export const getStudentResult = async (
   res: Response<GetStudentResultResType>
 ): Promise<void> => {
   try {
-    const { studentExamId } = req.query as { studentExamId: string }
+    const { studentExamId } = req.query as { studentExamId: GetStudentResultQueryType['student_exam_id'] }
 
     if (!studentExamId) {
       throw new AppError('Query parameter "studentExamId" is required', 400)
     }
 
-    // const { data, error } = await supabase.rpc<
-    //   string,
-    //   { Args: GetStudentResultQueryType; Returns: StudentResultType[] }
-    // >('get_student_result', {
-    //   _student_exam_id: studentExamId,
-    // })
     const { data, error } = await supabase
       .from('student_exams')
       .select(
@@ -365,5 +361,49 @@ export const getStudentResult = async (
     })
   } catch (error) {
     handleError(res, error)
+  }
+}
+
+// Need to be tested
+export const getStudentsByExamId = async (
+  req: AuthenticatedRequest,
+  res: Response<GetStudentsAnalysisResType>
+): Promise<void> => {
+  try {
+    const { examId } = req.query as { examId: string }
+
+    if (!examId || typeof examId !== 'string') {
+      throw new AppError('Query parameter "examId" is required', 400)
+    }
+
+    const { data, error } = await supabase
+      .from('student_exams')
+      .select(
+        `
+        first_name,
+        last_name,
+        total_score,
+        exam_id,
+        grade,
+        ability,
+        student_id,
+        student_exam_id:id,
+        grade,
+        middle_name
+        `
+      )
+      .eq('exam_id', examId)
+
+    if (error) {
+      throw new AppError(`Supabase error: ${error.message}`, 500)
+    }
+
+    res.status(200).json({
+      message: 'Students retrieved successfully',
+      data,
+      code: 200,
+    })
+  } catch (err) {
+    handleError(res, err)
   }
 }
