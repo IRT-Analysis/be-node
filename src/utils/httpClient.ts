@@ -1,4 +1,7 @@
 import axios from 'axios'
+import { config } from 'dotenv'
+
+config()
 
 const flaskApiBaseUrl = process.env.FLASK_API_ENDPOINT
 

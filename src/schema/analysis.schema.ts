@@ -36,6 +36,9 @@ export type OptionAnalysisType = {
     discrimination_index: number
     rpbis: number
     selection_rate: number
+    selected_by: number
+    top_selected: number
+    bottom_selected: number
   }
 }
 
@@ -63,6 +66,8 @@ export type GetGeneralDetailsResType = ApiResponse<{
   avg_discrimination_index: number
   avg_difficulty_index: number
   cronbach_alpha: number
+  avg_score: number
+  avg_rpbis: number
   id: string
   projects: ProjectDetailsType
 }>
@@ -109,3 +114,55 @@ export type GetOptionAnalysisQueryType = {
 export type GetOptionAnalysisResType = ApiResponse<OptionAnalysisType>
 
 // ----------------------------------------------
+
+export type StudentAnswerResultType = {
+  question_id: string
+  question_content: string
+  correct_option_id: string
+  correct_option_content: string
+  is_correct: boolean
+  selected_option: {
+    id: string
+    content: string
+  }
+}
+
+export type StudentResultType = {
+  id: string
+  first_name: string
+  last_name: string
+  total_score: number | null
+  exam_id: string
+  answers: StudentAnswerResultType[]
+}
+
+export type GetStudentResultQueryType = {
+  _student_exam_id: string
+}
+
+export type GetStudentResultResType = ApiResponse<StudentResultType>
+
+export type SupabaseStudentAnswerRaw = {
+  is_correct: boolean
+  selected_option: {
+    id: string
+    content: string
+  }
+  question: {
+    id: string
+    content: string
+    correct_option: {
+      id: string
+      content: string
+    }
+  }
+}
+
+export type SupabaseStudentExamRaw = {
+  id: string
+  first_name: string
+  last_name: string
+  total_score: number | null
+  exam_id: string
+  answers: SupabaseStudentAnswerRaw[]
+}
