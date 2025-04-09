@@ -3,11 +3,11 @@ import {
   getAllQuestionAnalysis,
   getGeneralDetails,
   getHistogramData,
-  getOptionsAnalysis,
   getOptionAnalysis,
+  getOptionsAnalysis,
   getQuestionAnalysis,
   getStudentResult,
-  getStudentsByExamId,
+  getStudentsByProjectId,
 } from '@/controllers/analysis.controller'
 import multerMiddleware from '@/middlewares/multer.middleware'
 import { Router } from 'express'
@@ -62,7 +62,7 @@ const ROUTES = {
   QUESTION_ANALYSIS: '/question',
   OPTIONS_ANALYSIS: '/options',
   OPTION_ANALYSIS: '/option',
-  STUDENTs_ANALYSIS: '/students',
+  STUDENTS_ANALYSIS: '/students',
   STUDENT_RESULT: '/student',
 }
 
@@ -74,7 +74,7 @@ router.get(ROUTES.QUESTIONS_ANALYSIS, getAllQuestionAnalysis)
 router.get(ROUTES.QUESTION_ANALYSIS, getQuestionAnalysis)
 router.get(ROUTES.OPTIONS_ANALYSIS, getOptionsAnalysis)
 router.get(ROUTES.OPTION_ANALYSIS, getOptionAnalysis)
-router.get(ROUTES.STUDENTs_ANALYSIS, getStudentsByExamId)
+router.get(ROUTES.STUDENTS_ANALYSIS, getStudentsByProjectId)
 router.get(ROUTES.STUDENT_RESULT, getStudentResult)
 
 export const analysisRoutes = router

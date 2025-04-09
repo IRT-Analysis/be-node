@@ -127,17 +127,12 @@ export type StudentAnswerResultType = {
   }
 }
 
-export type StudentResultType = {
-  id: string
-  first_name: string
-  last_name: string
-  total_score: number | null
-  exam_id: string
+export type StudentResultType = StudentExam & {
   answers: StudentAnswerResultType[]
 }
 
 export type GetStudentResultQueryType = {
-  student_exam_id: string
+  studentExamId: string
 }
 
 export type GetStudentResultResType = ApiResponse<StudentResultType>
@@ -158,18 +153,14 @@ export type SupabaseStudentAnswerRaw = {
   }
 }
 
-export type SupabaseStudentExamRaw = {
+export type SupabaseStudentExamRaw = Omit<StudentExam, 'student_examId'> & {
   id: string
-  first_name: string
-  last_name: string
-  total_score: number | null
-  exam_id: string
   answers: SupabaseStudentAnswerRaw[]
 }
 
 // ----------------------------------------------
 
-export type StudentBasicInfo = {
+export type StudentExam = {
   first_name: string
   middle_name: string
   last_name: string
@@ -181,7 +172,7 @@ export type StudentBasicInfo = {
 }
 
 export type GetStudentsAnalysisQueryType = {
-  examId: string
+  projectId: string
 }
 
-export type GetStudentsAnalysisResType = ApiResponse<StudentBasicInfo[]>
+export type GetStudentsAnalysisResType = ApiResponse<StudentExam[]>
