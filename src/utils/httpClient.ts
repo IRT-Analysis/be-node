@@ -7,7 +7,7 @@ const flaskApiBaseUrl = process.env.FLASK_API_ENDPOINT
 
 const httpClient = axios.create({
   baseURL: `${flaskApiBaseUrl}/api/analyze`,
-  timeout: 15000,
+  timeout: 1000 * 60,
   headers: {
     'Content-Type': 'application/json',
   },

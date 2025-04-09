@@ -15,6 +15,7 @@ import {
   GetQuestionAnalysisResType,
   GetStudentResultQueryType,
   GetStudentResultResType,
+  GetStudentsAnalysisQueryType,
   GetStudentsAnalysisResType,
   OptionAnalysisType,
   QuestionAnalysisType,
@@ -292,7 +293,7 @@ export const getStudentResult = async (
   res: Response<GetStudentResultResType>
 ): Promise<void> => {
   try {
-    const { studentExamId } = req.query as { studentExamId: GetStudentResultQueryType['student_exam_id'] }
+    const { studentExamId } = req.query as { studentExamId: GetStudentResultQueryType['studentExamId'] }
 
     if (!studentExamId) {
       throw new AppError('Query parameter "studentExamId" is required', 400)
@@ -307,6 +308,9 @@ export const getStudentResult = async (
         last_name,
         total_score,
         exam_id,
+        student_id,
+        grade,
+        middle_name,
         answers:student_answers (
           is_correct,
           selected_option:options (
@@ -339,9 +343,12 @@ export const getStudentResult = async (
     const exam = data
 
     const formatted: StudentResultType = {
-      id: exam.id,
+      student_exam_id: exam.id,
       first_name: exam.first_name,
       last_name: exam.last_name,
+      middle_name: exam.middle_name,
+      grade: exam.grade,
+      student_id: exam.student_id,
       total_score: exam.total_score,
       exam_id: exam.exam_id,
       answers: exam.answers.map((a) => ({
@@ -365,34 +372,20 @@ export const getStudentResult = async (
 }
 
 // Need to be tested
-export const getStudentsByExamId = async (
+export const getStudentsByProjectId = async (
   req: AuthenticatedRequest,
   res: Response<GetStudentsAnalysisResType>
 ): Promise<void> => {
   try {
-    const { examId } = req.query as { examId: string }
+    const { projectId } = req.query as GetStudentsAnalysisQueryType
 
-    if (!examId || typeof examId !== 'string') {
-      throw new AppError('Query parameter "examId" is required', 400)
+    if (!projectId || typeof projectId !== 'string') {
+      throw new AppError('Query parameter "projectId" is required', 400)
     }
 
-    const { data, error } = await supabase
-      .from('student_exams')
-      .select(
-        `
-        first_name,
-        last_name,
-        total_score,
-        exam_id,
-        grade,
-        ability,
-        student_id,
-        student_exam_id:id,
-        grade,
-        middle_name
-        `
-      )
-      .eq('exam_id', examId)
+    const { data, error } = await supabase.rpc('get_students_by_project_id', {
+      _project_id: projectId, // match the SQL function param name
+    })
 
     if (error) {
       throw new AppError(`Supabase error: ${error.message}`, 500)
