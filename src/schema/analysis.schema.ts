@@ -1,3 +1,4 @@
+import { AnalysisType } from '@/constant'
 import { ApiResponse } from '@/types/response_data.type'
 
 export type AnalyzeRequestType = {
@@ -14,6 +15,7 @@ type ProjectDetailsType = {
   total_options: number
   total_students: number
   total_questions: number
+  type: AnalysisType
 }
 
 export type QuestionAnalysisType = {
@@ -169,6 +171,7 @@ export type StudentExam = {
   exam_id: string
   grade: number | null
   student_id: string
+  ability: number | null
 }
 
 export type GetStudentsAnalysisQueryType = {
@@ -176,3 +179,35 @@ export type GetStudentsAnalysisQueryType = {
 }
 
 export type GetStudentsAnalysisResType = ApiResponse<StudentExam[]>
+
+// ----------------------------------------------
+export type RaschQuestionAnalysisType = {
+  id: string
+  question_analysis_id: string
+  difficulty: number
+  discrimination: number
+  logit: number
+  infit: number
+  outfit: number
+  reliability: number
+  question_content: string
+  options: RaschOptionAnalysisType[]
+}
+
+export type RaschOptionAnalysisType = {
+  id: string
+  content: string
+  rpbis: number
+  discrimination_index: number
+  selection_rate: number
+  selected_by: number
+  top_selected: number
+  bottom_selected: number
+  type: AnalysisType
+}
+
+export type GetRaschAnalysisQueryType = {
+  projectId: string
+}
+
+export type GetRaschAnalysisResType = ApiResponse<RaschQuestionAnalysisType[]>
