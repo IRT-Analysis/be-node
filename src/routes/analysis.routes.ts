@@ -6,6 +6,7 @@ import {
   getOptionAnalysis,
   getOptionsAnalysis,
   getQuestionAnalysis,
+  getRaschAnalysis,
   getStudentResult,
   getStudentsByProjectId,
 } from '@/controllers/analysis.controller'
@@ -56,6 +57,7 @@ const router = Router()
 
 const ROUTES = {
   ANALYZE: '/analyze',
+  RASCH_ANALYSIS: '/rasch-analysis',
   GENERAL_DETAILS: '/general-details',
   HISTOGRAM: '/histogram',
   QUESTIONS_ANALYSIS: '/questions',
@@ -76,5 +78,6 @@ router.get(ROUTES.OPTIONS_ANALYSIS, getOptionsAnalysis)
 router.get(ROUTES.OPTION_ANALYSIS, getOptionAnalysis)
 router.get(ROUTES.STUDENTS_ANALYSIS, getStudentsByProjectId)
 router.get(ROUTES.STUDENT_RESULT, getStudentResult)
+router.get(ROUTES.RASCH_ANALYSIS, getRaschAnalysis)
 
 export const analysisRoutes = router

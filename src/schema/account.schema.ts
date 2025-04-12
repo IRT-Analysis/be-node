@@ -10,6 +10,7 @@ export type ProjectType = {
   total_questions: number
   total_students: number
   total_options: number
+  type: string
 }
 
 // ----------------------------------------------

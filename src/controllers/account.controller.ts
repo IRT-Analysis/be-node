@@ -29,7 +29,7 @@ export const getMyProjects = async (req: AuthenticatedRequest, res: Response<MyP
 
     const { data, error } = await supabase
       .from('projects')
-      .select('created_at,user_id,name,id,total_questions,total_students,total_options')
+      .select('created_at,user_id,name,id,total_questions,total_students,total_options,type')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 

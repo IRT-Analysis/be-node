@@ -15,8 +15,7 @@ export const signIn = async (req: Request, res: Response<SignInResType>): Promis
       email,
       password,
     })
-    console.log('data', data)
-    console.log('error', error)
+
     if (error) {
       throw new AppError(error.message, 400)
     }

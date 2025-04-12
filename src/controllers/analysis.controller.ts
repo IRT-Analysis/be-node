@@ -13,6 +13,8 @@ import {
   GetOptionAnalysisResType,
   GetOptionsAnalysisResType,
   GetQuestionAnalysisResType,
+  GetRaschAnalysisQueryType,
+  GetRaschAnalysisResType,
   GetStudentResultQueryType,
   GetStudentResultResType,
   GetStudentsAnalysisQueryType,
@@ -21,10 +23,10 @@ import {
   QuestionAnalysisType,
   StudentResultType,
   SupabaseStudentExamRaw,
-} from './../schema/analysis.schema'
+  GetGeneralDetailsResType,
+} from '@/schema/analysis.schema'
 
 import { AnalysisType, REQUIRED_FILES } from '@/constant'
-import { GetGeneralDetailsResType } from '@/schema/analysis.schema'
 import { supabase } from '@/utils/supabaseClient'
 
 dotenv.config()
@@ -62,7 +64,7 @@ export const createAnalysis = async (req: AuthenticatedRequest, res: Response<An
     if (groupPercentage) formData.append('groupPercentage', groupPercentage.toString())
     if (correlationRpbis) formData.append('correlationRpbis', correlationRpbis.toString())
 
-    const { data } = await httpClient.post<AnalyzeResType>(`/?type=${type}`, formData, {
+    const { data } = await httpClient.post<AnalyzeResType>(`/${type}`, formData, {
       headers: { ...formData.getHeaders(), Cookie: req.headers.cookie },
       withCredentials: true,
     })
@@ -90,7 +92,7 @@ export const getGeneralDetails = async (
 
     const { data, error } = await supabase
       .from('exam_analysis')
-      .select('*, projects(name,total_options,total_students,total_questions)')
+      .select('*, projects(name,total_options,total_students,total_questions,type)')
       .eq('project_id', projectId)
       .maybeSingle()
 
@@ -310,6 +312,7 @@ export const getStudentResult = async (
         exam_id,
         student_id,
         grade,
+        ability,
         middle_name,
         answers:student_answers (
           is_correct,
@@ -350,6 +353,7 @@ export const getStudentResult = async (
       grade: exam.grade,
       student_id: exam.student_id,
       total_score: exam.total_score,
+      ability: exam.ability,
       exam_id: exam.exam_id,
       answers: exam.answers.map((a) => ({
         question_id: a.question.id,
@@ -395,6 +399,39 @@ export const getStudentsByProjectId = async (
       message: 'Students retrieved successfully',
       data,
       code: 200,
+    })
+  } catch (err) {
+    handleError(res, err)
+  }
+}
+
+export const getRaschAnalysis = async (
+  req: AuthenticatedRequest,
+  res: Response<GetRaschAnalysisResType>
+): Promise<void> => {
+  try {
+    const { projectId } = req.query as GetRaschAnalysisQueryType
+
+    if (!projectId) {
+      throw new AppError('Query parameter "projectId" is required', 400)
+    }
+
+    const { data, error } = await supabase.rpc('get_rasch_by_project_id', {
+      _project_id: projectId,
+    })
+
+    if (error) {
+      throw new AppError(`Supabase RPC error: ${error.message}`, 500)
+    }
+
+    if (!data || data.length === 0) {
+      throw new AppError('No Rasch analysis found for this project', 404)
+    }
+
+    res.status(200).json({
+      message: 'Rasch analysis retrieved successfully',
+      code: 200,
+      data,
     })
   } catch (err) {
     handleError(res, err)
