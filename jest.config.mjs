@@ -7,6 +7,7 @@ export default {
     '@/(.*)': '<rootDir>/src/$1',
   },
   setupFiles: ['dotenv/config'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testMatch: ['**.test.ts'],
   collectCoverage: false,
   coverageDirectory: 'coverage',
@@ -15,4 +16,5 @@ export default {
     '!src/**/*.d.ts', // Exclude declaration files
     '!src/index.ts', // Exclude entry file
   ],
+  coveragePathIgnorePatterns: ['server.ts'],
 }
