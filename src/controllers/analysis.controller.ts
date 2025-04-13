@@ -156,10 +156,12 @@ export const getAllQuestionAnalysis = async (
 
     const examId = examData?.exam_id
 
-    console.log('Exam ID:', examData)
-
     if (!examId) {
       throw new AppError('Exam not found', 404)
+    }
+
+    if (error) {
+      throw new AppError(`Supabase error: ${error.message}`, 500)
     }
 
     const { data, error: questionsError } = await supabase
@@ -172,10 +174,6 @@ export const getAllQuestionAnalysis = async (
 
     if (questionsError) {
       throw new AppError(`Supabase error: ${questionsError.message}`, 500)
-    }
-
-    if (error) {
-      throw new AppError(`Supabase error: ${error.message}`, 500)
     }
 
     if (!data) {

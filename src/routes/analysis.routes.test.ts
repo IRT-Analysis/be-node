@@ -69,13 +69,13 @@ describe('GET /api/* analysis routes', () => {
   })
   describe('GET routes success', () => {
     it.each`
-      case | path                         | queryParamKey   | queryValue   | supabaseResult                                   | expectedMessage                           | useReturns
-      ${1} | ${'/api/general-details'}    | ${'projectId'}  | ${'proj123'} | ${{ data: { name: 'Test Project' } }}            | ${'General details retrieved'}            | ${false}
-      ${2} | ${'/api/histogram'}          | ${'projectId'}  | ${'proj123'} | ${{ data: { histogram: [1, 2, 3] } }}            | ${'Histogram data retrieved'}             | ${false}
-      ${3} | ${'/api/questions-analysis'} | ${'projectId'}  | ${'proj123'} | ${{ data: [{ id: 'q1', content: 'Q1?' }] }}      | ${'All question analyses retrieved'}      | ${true}
-      ${4} | ${'/api/question-analysis'}  | ${'questionId'} | ${'q123'}    | ${{ data: { id: 'q123', content: 'Q123?' } }}    | ${'Specific question analysis retrieved'} | ${false}
-      ${5} | ${'/api/options-analysis'}   | ${'questionId'} | ${'q123'}    | ${{ data: [{ id: 'o1', content: 'Option 1' }] }} | ${'Specific question analysis retrieved'} | ${true}
-      ${6} | ${'/api/option-analysis'}    | ${'optionId'}   | ${'opt123'}  | ${{ data: { id: 'opt123', content: 'Opt A' } }}  | ${'Specific question analysis retrieved'} | ${false}
+      case | path                      | queryParamKey   | queryValue   | supabaseResult                                   | expectedMessage                           | useReturns
+      ${1} | ${'/api/general-details'} | ${'projectId'}  | ${'proj123'} | ${{ data: { name: 'Test Project' } }}            | ${'General details retrieved'}            | ${false}
+      ${2} | ${'/api/histogram'}       | ${'projectId'}  | ${'proj123'} | ${{ data: { histogram: [1, 2, 3] } }}            | ${'Histogram data retrieved'}             | ${false}
+      ${3} | ${'/api/questions'}       | ${'projectId'}  | ${'proj123'} | ${{ data: [{ id: 'q1', content: 'Q1?' }] }}      | ${'All question analyses retrieved'}      | ${true}
+      ${4} | ${'/api/question'}        | ${'questionId'} | ${'q123'}    | ${{ data: { id: 'q123', content: 'Q123?' } }}    | ${'Specific question analysis retrieved'} | ${false}
+      ${5} | ${'/api/options'}         | ${'questionId'} | ${'q123'}    | ${{ data: [{ id: 'o1', content: 'Option 1' }] }} | ${'Specific question analysis retrieved'} | ${true}
+      ${6} | ${'/api/option'}          | ${'optionId'}   | ${'opt123'}  | ${{ data: { id: 'opt123', content: 'Opt A' } }}  | ${'Specific question analysis retrieved'} | ${false}
     `(
       '($case) $path returns 200 with valid $queryParamKey',
       async ({ case: caseNum, path, queryParamKey, queryValue, supabaseResult, expectedMessage, useReturns }) => {
@@ -128,13 +128,13 @@ describe('GET /api/* analysis routes', () => {
 
   describe('GET routes with error', () => {
     it.each`
-      case | path                         | queryParamKey   | expectedMessage
-      ${1} | ${'/api/general-details'}    | ${'projectId'}  | ${'Query parameter "projectId" is required'}
-      ${2} | ${'/api/histogram'}          | ${'projectId'}  | ${'Query parameter "projectId" is required'}
-      ${3} | ${'/api/questions-analysis'} | ${'projectId'}  | ${'Query parameter "projectId" is required'}
-      ${4} | ${'/api/question-analysis'}  | ${'questionId'} | ${'Query parameters "questionId" are required'}
-      ${5} | ${'/api/options-analysis'}   | ${'questionId'} | ${'Query parameters "questionId" are required'}
-      ${6} | ${'/api/option-analysis'}    | ${'optionId'}   | ${'Query parameters "optionId" are required'}
+      case | path                      | queryParamKey   | expectedMessage
+      ${1} | ${'/api/general-details'} | ${'projectId'}  | ${'Query parameter "projectId" is required'}
+      ${2} | ${'/api/histogram'}       | ${'projectId'}  | ${'Query parameter "projectId" is required'}
+      ${3} | ${'/api/questions'}       | ${'projectId'}  | ${'Query parameter "projectId" is required'}
+      ${4} | ${'/api/question'}        | ${'questionId'} | ${'Query parameters "questionId" are required'}
+      ${5} | ${'/api/options'}         | ${'questionId'} | ${'Query parameters "questionId" are required'}
+      ${6} | ${'/api/option'}          | ${'optionId'}   | ${'Query parameters "optionId" are required'}
     `('($case) $path returns 400 if $queryParamKey is missing', async ({ path, expectedMessage }) => {
       const res = await request(app).get(path)
       expect(res.status).toBe(400)
