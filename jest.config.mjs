@@ -6,10 +6,10 @@ export default {
   moduleNameMapper: {
     '@/(.*)': '<rootDir>/src/$1',
   },
+  collectCoverage: true,
   setupFiles: ['dotenv/config'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testMatch: ['**.test.ts'],
-  collectCoverage: false,
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}', // Include all TS files
@@ -17,4 +17,12 @@ export default {
     '!src/index.ts', // Exclude entry file
   ],
   coveragePathIgnorePatterns: ['server.ts'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
 }

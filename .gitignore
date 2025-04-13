@@ -4,4 +4,9 @@
 
 /coverage
 
+# Ignore all .env files
 .env
+.env.*
+
+# Except the example template
+!.env.example
