@@ -147,6 +147,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT_PRODUCTION }}
           script: |
+            echo "${{ secrets.ENV_PRODUCTION }}" > /home/longtr/projects/env/node.env
             cd /home/longtr/projects
             sudo docker compose pull node-backend
             sudo docker compose up -d node-backend
