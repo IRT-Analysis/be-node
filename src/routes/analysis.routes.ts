@@ -66,7 +66,7 @@ const ROUTES = {
   OPTION_ANALYSIS: '/option',
   STUDENTS_ANALYSIS: '/students',
   STUDENT_RESULT: '/student',
-}
+} as const
 
 router.post(ROUTES.ANALYZE, multerMiddleware, createAnalysis)
 

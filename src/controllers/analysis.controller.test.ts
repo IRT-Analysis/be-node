@@ -276,11 +276,11 @@ describe('Analysis Controller', () => {
   })
   describe('getStudentResult', () => {
     it.each`
-      case | query                      | supabaseResult                                                                                                                                                         | expectedStatus | expectedMessage
-      ${1} | ${{ studentExamId: 's1' }} | ${{ data: { id: 's1', first_name: 'A', last_name: 'B', total_score: 5, ability: 0.5, student_id: 'stu1', exam_id: 'ex1', grade: 'A', middle_name: '', answers: [] } }} | ${200}         | ${'Student result retrieved'}
-      ${2} | ${{}}                      | ${undefined}                                                                                                                                                           | ${400}         | ${'Query parameter "studentExamId" is required'}
-      ${3} | ${{ studentExamId: 's2' }} | ${{ error: { message: 'RPC failed' } }}                                                                                                                                | ${500}         | ${'Supabase RPC error: RPC failed'}
-      ${4} | ${{ studentExamId: 's3' }} | ${{ data: null }}                                                                                                                                                      | ${404}         | ${'No student result found'}
+      case | query                      | supabaseResult                                                                                                                                        | expectedStatus | expectedMessage
+      ${1} | ${{ studentExamId: 's1' }} | ${{ data: { id: 's1', first_name: 'A', last_name: 'B', total_score: 5, ability: 0.5, student_id: 'stu1', exam_id: 'ex1', grade: 'A', answers: [] } }} | ${200}         | ${'Student result retrieved'}
+      ${2} | ${{}}                      | ${undefined}                                                                                                                                          | ${400}         | ${'Query parameter "studentExamId" is required'}
+      ${3} | ${{ studentExamId: 's2' }} | ${{ error: { message: 'RPC failed' } }}                                                                                                               | ${500}         | ${'Supabase RPC error: RPC failed'}
+      ${4} | ${{ studentExamId: 's3' }} | ${{ data: null }}                                                                                                                                     | ${404}         | ${'No student result found'}
     `('($case) handles getStudentResult', async ({ query, supabaseResult, expectedStatus, expectedMessage }) => {
       const req = httpMocks.createRequest({ query })
       const res = httpMocks.createResponse()
