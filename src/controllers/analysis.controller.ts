@@ -1,14 +1,10 @@
 import { AuthenticatedRequest } from '@/middlewares/auth.middleware'
-import { AppError, handleError } from '@/utils/errorHandler'
-import httpClient from '@/utils/httpClient'
-import dotenv from 'dotenv'
-import { Response } from 'express'
-import FormData from 'form-data'
 import {
   AnalyzeRequestType,
   AnalyzeResType,
   GetAllQuestionAnalysisResType,
   GetGeneralDetailsQueryType,
+  GetGeneralDetailsResType,
   GetHistogramResType,
   GetOptionAnalysisResType,
   GetOptionsAnalysisResType,
@@ -21,10 +17,15 @@ import {
   GetStudentsAnalysisResType,
   OptionAnalysisType,
   QuestionAnalysisType,
+  StudentExam,
   StudentResultType,
   SupabaseStudentExamRaw,
-  GetGeneralDetailsResType,
 } from '@/schema/analysis.schema'
+import { AppError, handleError } from '@/utils/errorHandler'
+import httpClient from '@/utils/httpClient'
+import dotenv from 'dotenv'
+import { Response } from 'express'
+import FormData from 'form-data'
 
 import { AnalysisType, REQUIRED_FILES } from '@/constant'
 import { supabase } from '@/utils/supabaseClient'
@@ -311,7 +312,6 @@ export const getStudentResult = async (
         student_id,
         grade,
         ability,
-        middle_name,
         answers:student_answers (
           is_correct,
           selected_option:options (
@@ -347,7 +347,6 @@ export const getStudentResult = async (
       student_exam_id: exam.id,
       first_name: exam.first_name,
       last_name: exam.last_name,
-      middle_name: exam.middle_name,
       grade: exam.grade,
       student_id: exam.student_id,
       total_score: exam.total_score,
@@ -372,8 +371,7 @@ export const getStudentResult = async (
     handleError(res, error)
   }
 }
-
-// Need to be tested
+// Get students and Rasch analysis by project ID
 export const getStudentsByProjectId = async (
   req: AuthenticatedRequest,
   res: Response<GetStudentsAnalysisResType>
@@ -385,18 +383,40 @@ export const getStudentsByProjectId = async (
       throw new AppError('Query parameter "projectId" is required', 400)
     }
 
-    const { data, error } = await supabase.rpc('get_students_by_project_id', {
-      _project_id: projectId, // match the SQL function param name
+    const { data: studentData, error: studentError } = await supabase.rpc('get_students_by_project_id', {
+      _project_id: projectId,
     })
 
-    if (error) {
-      throw new AppError(`Supabase error: ${error.message}`, 500)
+    if (studentError) {
+      throw new AppError(`Supabase RPC error (students): ${studentError.message}`, 500)
     }
 
+    const { data: raschData, error: raschError } = await supabase.rpc('get_question_logits_by_project_id', {
+      input_project_id: projectId,
+    })
+
+    if (raschError) {
+      throw new AppError(`Supabase RPC error (rasch questions): ${raschError.message}`, 500)
+    }
+
+    const students: StudentExam[] = ((studentData as StudentExam[]) ?? []).map((row: StudentExam) => ({
+      first_name: row.first_name,
+      last_name: row.last_name,
+      student_exam_id: row.student_exam_id,
+      total_score: row.total_score,
+      exam_id: row.exam_id,
+      grade: row.grade,
+      ability: row.ability,
+      student_id: row.student_id,
+    }))
+
     res.status(200).json({
-      message: 'Students retrieved successfully',
-      data,
       code: 200,
+      message: 'Students and Rasch questions retrieved successfully',
+      data: {
+        students,
+        questions: raschData ?? [],
+      },
     })
   } catch (err) {
     handleError(res, err)
