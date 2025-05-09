@@ -28,6 +28,7 @@ export type QuestionAnalysisType = {
     rpbis: number
     selection_rate: number
     group_choice_percentages: Record<string, number>[]
+    evaluation: string
   }
 }
 
@@ -66,8 +67,12 @@ export type GetGeneralDetailsResType = ApiResponse<{
   exam_id: string
   project_id: string
   avg_discrimination_index: number
+
   avg_difficulty_index: number
   cronbach_alpha: number
+  avg_infit: number
+  avg_outfit: number
+  avg_reliability: number
   avg_score: number
   avg_rpbis: number
   id: string
@@ -85,6 +90,12 @@ export type GetHistogramResType = ApiResponse<{
   difficulty: Record<string, number>[]
   discrimination: Record<string, number>[]
   r_pbis: Record<string, number>[]
+  infit_outfit: { questionNo: number; infit: number; outfit: number }[]
+  scatter_plot: {
+    difficulty: number
+    discrimination: number
+    question_id: number
+  }[]
 }>
 
 // ----------------------------------------------
@@ -198,6 +209,7 @@ export type RaschQuestionAnalysisType = {
   outfit: number
   reliability: number
   question_content: string
+  evaluation: string
   options: RaschOptionAnalysisType[]
 }
 
