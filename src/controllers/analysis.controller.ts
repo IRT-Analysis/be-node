@@ -168,7 +168,7 @@ export const getAllQuestionAnalysis = async (
     const { data, error: questionsError } = await supabase
       .from('questions')
       .select(
-        'id, exam_id, content, question_analysis(discrimination_index, difficulty_index, rpbis, selection_rate, group_choice_percentages, evaluation)'
+        'id, exam_id, content,correct_option_id, question_analysis(discrimination_index, difficulty_index, rpbis, selection_rate, group_choice_percentages, evaluation)'
       )
       .eq('exam_id', examId)
       .returns<QuestionAnalysisType[]>()
@@ -201,7 +201,7 @@ export const getQuestionAnalysis = async (
     const { data, error } = await supabase
       .from('questions')
       .select(
-        'id,exam_id,content,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate,group_choice_percentages)'
+        'id,exam_id,content,correct_option_id,question_analysis(discrimination_index,difficulty_index,rpbis,selection_rate,group_choice_percentages)'
       )
       .eq('id', questionId)
       .returns<QuestionAnalysisType>()

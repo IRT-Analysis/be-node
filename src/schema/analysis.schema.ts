@@ -22,6 +22,7 @@ export type QuestionAnalysisType = {
   id: string
   exam_id: string
   content: string
+  correct_option_id: string
   question_analysis: {
     discrimination_index: number
     difficulty_index: number
