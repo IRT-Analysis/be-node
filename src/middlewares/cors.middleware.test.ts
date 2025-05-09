@@ -13,13 +13,13 @@ describe('corsMiddleware', () => {
   }
 
   it.each`
-    case | origin                               | shouldPass
-    ${1} | ${'https://lifeistoolong.id.vn'}     | ${true}
-    ${2} | ${'https://www.lifeistoolong.id.vn'} | ${true}
-    ${3} | ${'http://localhost:5173'}           | ${true}
-    ${4} | ${'http://localhost:4173'}           | ${true}
-    ${5} | ${'http://notallowed.com'}           | ${false}
-    ${6} | ${undefined}                         | ${true}
+    case | origin                             | shouldPass
+    ${1} | ${'https://mcq-insight.id.vn'}     | ${true}
+    ${2} | ${'https://www.mcq-insight.id.vn'} | ${true}
+    ${3} | ${'http://localhost:5173'}         | ${true}
+    ${4} | ${'http://localhost:4173'}         | ${true}
+    ${5} | ${'http://notallowed.com'}         | ${false}
+    ${6} | ${undefined}                       | ${true}
   `('($case) handles origin: $origin', async ({ origin, shouldPass }) => {
     const req = httpMocks.createRequest({
       method: 'GET',
